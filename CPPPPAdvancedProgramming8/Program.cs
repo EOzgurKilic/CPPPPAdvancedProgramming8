@@ -16,10 +16,18 @@
 
             //Generic Methods
             Console.WriteLine(GenericMethod1<int,int>(1,2));
-            //So everything seems similar to the generic usage in classes 'til this point but there is a unique ability we have in generic method's generic parameters:
+            //So everything seems similar to the generic usage in classes 'til this point but there is a unique ability we have in generic methods' generic parameters:
             //If the method has all its generic type parameters' variables, objects, etc. among its normal parameters,
             //then we don't have to additionally give arguments for the generic parameter part of the method as the compiler automatically assigns them the normal relevant parameters' types.
             Console.WriteLine(GenericMethod1(1, 2)); //T1 and T2 will both be int anyway since 1 (an int) is given for T1 and 2 (another int) for T2.
+            
+            
+            //Constraints in Generic Architecture
+            //Constraints allows us to specify the types the generic parameters can get.
+            //Thus, they prevent unwanted types from being given as arguments which can avoid possible errors.
+            //Besides, we can type warning messages for the users which will pop up in the compile time when an unwanted type is given as an argument.
+            //In short, it has a significant effect on type safety.
+            //Check constraint Arch. syntax below in "ConstraintsClass" class and in "GenericConstraintMethod" method.
         }
         static T1 GenericMethod1<T1,T2>(T1 t1, T2 t2) 
         {
@@ -71,5 +79,37 @@
     //... or we can give the parameter of the derived generic class to the base generic class as an argument
     class GenericClass6<t1> : GenericClass4<t1>
     {
+    }
+
+
+    class ConstraintsClass<t1,t2,t3,t4, t5, t6, t7> where t1 : struct /*The parameter will only allow struct type arguments for t1. Called Value Type Constraint*/
+        where t2 : class /*Any reference type will be allowed as arguments for t2 (classes, records, abstract classes, interfaces). Called Reference Type Constraint*/ 
+        where t3 : new() //Will take only types with instance creation like classes(with public constructors without any parameters because instantiation over these classes must be possible), structs, records, and etc. Moreover, arguments shouldn't be abstract and static classes either. Called New Constraint
+        where t4 : ExpBaseClass //Will merely take ExpBaseClass instances of the ones below the relevant class in the waterflow. Called Base Class Constraint.
+        where t5 : ExpInterface //Interface Constraint.
+        where t6 : Enum //Enum Constraint.
+        where t7 : notnull // Types null can't be assigned to.
+    {
+        public static void GenericConstraintMethod1<t1>(t1 obj1) where t1 : new() //Because this ensures the argument taken a reference of an object, the compiler will allow us to assign a new object to it.
+        {
+         obj1 = new t1(); //Check the method bellow to see the error when "where t1 : new()" is not typed.
+        }
+        /*public static void GenericConstraintMethod2<t1>(t1 obj1)
+        {
+            obj1 = new t1();
+        } */
+    }
+
+    class ExpBaseClass
+    {
+    }
+
+    class ExpDerivedClass : ExpBaseClass
+    {
+    }
+
+    interface ExpInterface
+    {
+        
     }
 }
